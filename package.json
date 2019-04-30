@@ -1,0 +1,21 @@
+{
+  "name": "oculus-db-mock-feeder",
+  "version": "1.0.0",
+  "description": "A script for feeding OCULUS databases with mocked data",
+  "main": "build/oculus-db-mock-feeder.js",
+  "scripts": {
+    "build": "tsc",
+    "go": "node build/oculus-db-mock-feeder.js",
+    "start": "npm run build && npm run go"
+  },
+  "keywords": [
+    "oculus"
+  ],
+  "author": "Jakub Riegel",
+  "license": "MIT",
+  "dependencies": {
+    "@types/mongodb": "^3.1.25",
+    "fs": "0.0.1-security",
+    "mongodb": "^3.2.3"
+  }
+}
