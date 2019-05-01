@@ -36,7 +36,11 @@ export class Feeder {
     }
 
     async feedPatients() {
-        
+        let patients =  readJSON("patients.json")
+        this.insertDocuments(patients, 'patient')
+
+        let metrics =  readJSON("patientMetrics.json")
+        this.insertDocuments(metrics, 'patientMetrics')
     }
 
     async feedJobs() {
@@ -52,7 +56,7 @@ export class Feeder {
         this.insertDocuments(jobs, 'job')
         this.insertDocuments(rules, 'rule')
         this.insertDocuments(users, 'user')
-        this.insertDocuments(patients, 'patient')
+        
     }
 
     private async insertDocuments(data: any[], collectionName: string) {

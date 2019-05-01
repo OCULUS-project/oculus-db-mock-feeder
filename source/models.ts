@@ -55,7 +55,7 @@ export namespace PatientsDb {
         lastName: string,
         pesel: number,
         email: string,
-        phone?: number,
+        phone?: string,
         password?: string
     }
     
