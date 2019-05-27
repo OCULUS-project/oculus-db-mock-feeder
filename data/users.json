@@ -1,10 +1,10 @@
 [
-    {
-        "id": "dev123",
-        "type": "admin",
-        "login": "dev123",
-        "password": "123456",
-        "name": "Developer",
-        "email": "jakub.riegel@student.put.poznan.pl"
-    }
+  {
+    "id": "dev123",
+    "type": "admin",
+    "login": "dev123",
+    "password": "123456",
+    "name": "Developer",
+    "email": "jakub.riegel@student.put.poznan.pl"
+  }
 ]

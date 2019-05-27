@@ -1,4 +1,4 @@
-import { Binary } from 'mongodb'
+import {Binary} from 'mongodb'
 
 export namespace JobsDb {
     export interface Job {
@@ -12,27 +12,27 @@ export namespace JobsDb {
         created: Date,
         updated: Date,
     }
-    
+
     export enum JobStatus { NEW, WORKING, DONE }
-    
+
     export interface Premise {
         id?: string,
         head: string,
         set: string[],
         conjuction: boolean
     }
-    
+
     export interface Fact extends Premise {
         grfIrf: GrfIrf
     }
-    
+
     export interface Rule {
         id?: string,
         premises: Premise[],
         conclusion: Premise,
         grfIrf: GrfIrf
     }
-    
+
     export interface GrfIrf {
         grf: number,
         irf: number
@@ -46,7 +46,7 @@ export namespace ImagesDb {
         date: Date,
         notes: string
     }
-}   
+}
 
 export namespace PatientsDb {
     export interface Patient {
@@ -57,14 +57,16 @@ export namespace PatientsDb {
         email: string,
         phone?: string,
         password?: string
+        metrics: string // id of patients metric
     }
-    
+
     export interface PatientMetrics {
         id?: string,
         dateOfBirth: Date,
         weight: number,
         height: number,
-        notes: string
+        notes: string,
+        updatedAt: Date
     }
 }
 
@@ -78,6 +80,6 @@ export namespace UsersDb {
         email: string,
         phone: number
     }
-    
+
     export enum UserType { DOCTOR, ADMIN }
 }

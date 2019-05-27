@@ -1,12 +1,15 @@
-import { MongoClient, Binary, Db } from 'mongodb'
-import { readFileSync } from 'fs'
-import { ImagesDb } from './models'
+import {MongoClient, Binary, Db, InsertOneWriteOpResult, InsertWriteOpResult} from 'mongodb'
+import {readFileSync} from 'fs'
+import {ImagesDb, PatientsDb} from './models'
 
 export class Feeder {
 
+    private readonly now = new Date()
+
     constructor(
         private readonly db: Db
-    ) {}
+    ) {
+    }
 
     async feedImgs() {
         const time = new Date()
@@ -36,16 +39,22 @@ export class Feeder {
     }
 
     async feedPatients() {
-        let patients =  readJSON("patients.json")
-        this.insertDocuments(patients, 'patient')
+        const metrics = <PatientsDb.PatientMetrics[]>readJSON("patientMetrics.json")
+        for (const m of metrics) {
+            m.dateOfBirth = new Date(m.dateOfBirth)
+            m.updatedAt = this.now
+        }
+        const metricsResult = await this.insertDocuments(metrics, 'patientMetrics')
 
-        let metrics =  readJSON("patientMetrics.json")
-        this.insertDocuments(metrics, 'patientMetrics')
+        const patients = <PatientsDb.Patient[]>readJSON("patients.json")
+        for (let i = 0; i < metrics.length; i++)
+            patients[i].metrics = metricsResult.insertedIds[i].toHexString()
+        this.insertDocuments(patients, 'patient')
     }
 
     async feedJobs() {
         const jobs: any[] = readJSON("jobs.json");
-        for (let j of jobs) {
+        for (const j of jobs) {
             j.created = new Date();
             j.updated = new Date();
         }
@@ -56,18 +65,18 @@ export class Feeder {
         this.insertDocuments(jobs, 'job')
         this.insertDocuments(rules, 'rule')
         this.insertDocuments(users, 'user')
-        
+
     }
 
-    private async insertDocuments(data: any[], collectionName: string) {
-        var collection = this.db.collection(collectionName)
+    private async insertDocuments(data: any[], collectionName: string): Promise<InsertWriteOpResult> {
+        let collection = this.db.collection(collectionName)
         collection.deleteMany({})
-    
-        await collection.insertMany(data)
+
+        let result = await collection.insertMany(data)
         console.log("inserted " + collectionName)
+        return result
     }
 }
-
 
 
 function readJSON(filename: string): object[] {
