@@ -10,12 +10,35 @@ export class Feeder {
         private readonly db: Db
     ) {
     }
-
+    
     async feedImgs() {
+        let collection = this.db.collection('imageFile')
+        let files: ImagesDb.ImageFile[] = []
         const time = new Date()
 
+        for (let i = 1; i < 100; i++) {
+            let imgs: string[] = []
+            for (let j = i*10-9; j <= i*10; j++) imgs.push(pad(j, 4))
+
+            files.push({
+                id: pad(i, 9),
+                patient: "kowalski",
+                images: imgs,
+                date: time,
+                notes: "txt"
+            })
+        }
+        
+        console.log('sending img files to db')
+        await collection.insertMany(files)
+    }
+
+    /** save raw images from the filesystem to the db */
+    private async saveImgs() {
         let imgs: ImagesDb.Image[] = []
         let collection = this.db.collection('img')
+        const time = new Date()
+        
         for (let i = 1; i <= 1000; i++) {
             let filename = 'data/img/imgs_1k/img_' + i.toString().padStart(4, '0') + '.jpg'
             let img = readFileSync(filename)
@@ -31,7 +54,7 @@ export class Feeder {
                 imgs = []
             }
         }
-
+        
         if (imgs.length > 0) {
             console.log('sending imgs to db LAST')
             await collection.insertMany(imgs)
@@ -82,4 +105,10 @@ export class Feeder {
 function readJSON(filename: string): object[] {
     let json = readFileSync('data/' + filename)
     return JSON.parse(json.toString())
+}
+
+function pad(input: number, size: number) {
+    var s = String(input)
+    while (s.length < (size || 2)) {s = "0" + s;}
+    return s;
 }

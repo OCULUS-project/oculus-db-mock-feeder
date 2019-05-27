@@ -14,8 +14,8 @@
   "author": "Jakub Riegel",
   "license": "MIT",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/OCULUS-project/oculus-db-mock-feeder.git"
+    "type": "git",
+    "url": "https://github.com/OCULUS-project/oculus-db-mock-feeder.git"
   },
   "dependencies": {
     "@types/mongodb": "^3.1.25",

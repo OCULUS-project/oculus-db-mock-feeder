@@ -40,6 +40,14 @@ export namespace JobsDb {
 }
 
 export namespace ImagesDb {
+    export interface ImageFile {
+        id?: string,
+        patient: string,
+        images: string[],
+        date: Date,
+        notes: string
+    }
+    
     export interface Image {
         id?: string,
         image: Binary,
