@@ -1,4 +1,4 @@
-import {MongoClient} from 'mongodb'
+import {MongoClient, Db} from 'mongodb'
 import {Feeder} from './feeder'
 
 enum DbType {
@@ -19,21 +19,21 @@ class Connector {
                 const db = client.db(dbType)
                 console.log("connected to " + dbType)
 
-                const feeder = new Feeder(db)
-                await this.feed(dbType, feeder)
-
+                db.dropDatabase();
+                await this.feed(dbType, db)
                 client.close()
             }
         })
     }
 
-    private static async feed(dbType: DbType, feeder: Feeder) {
+    private static async feed(dbType: DbType, db: Db) {
+        const feeder = new Feeder(db)
         switch (dbType) {
             case DbType.PATIENTS:
-                feeder.feedPatients()
+                await feeder.feedPatients()
                 break
             case DbType.IMAGES:
-                feeder.feedImgs()
+                await feeder.feedImgs()
                 break
         }
     }
@@ -45,5 +45,3 @@ const port = process.argv[4] != undefined ? process.argv[4] : '27017'
 
 // start the script
 Connector.connect(dbType)
-
-

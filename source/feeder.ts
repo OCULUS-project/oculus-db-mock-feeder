@@ -1,4 +1,4 @@
-import {MongoClient, Binary, Db, InsertOneWriteOpResult, InsertWriteOpResult} from 'mongodb'
+import {MongoClient, Binary, Db, InsertOneWriteOpResult, InsertWriteOpResult, ObjectId} from 'mongodb'
 import {readFileSync} from 'fs'
 import {ImagesDb, PatientsDb} from './models'
 
@@ -11,17 +11,18 @@ export class Feeder {
     ) {
     }
     
+    /** save image files with the filesystem reference to the db */
     async feedImgs() {
         let collection = this.db.collection('imageFile')
         let files: ImagesDb.ImageFile[] = []
         const time = new Date()
 
-        for (let i = 1; i < 100; i++) {
+        for (let i = 1; i <= 100; i++) {
             let imgs: string[] = []
             for (let j = i*10-9; j <= i*10; j++) imgs.push(pad(j, 4))
 
             files.push({
-                id: pad(i, 9),
+                _id: new ObjectId(pad(i, 24)),
                 patient: "kowalski",
                 images: imgs,
                 date: time,
@@ -61,15 +62,16 @@ export class Feeder {
         }
     }
 
+    /** save patients and patients metrics to the db */
     async feedPatients() {
-        const metrics = <PatientsDb.PatientMetrics[]>readJSON("patientMetrics.json")
+        const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
         for (const m of metrics) {
             m.dateOfBirth = new Date(m.dateOfBirth)
             m.updatedAt = this.now
         }
         const metricsResult = await this.insertDocuments(metrics, 'patientMetrics')
 
-        const patients = <PatientsDb.Patient[]>readJSON("patients.json")
+        const patients = <PatientsDb.Patient[]> readJSON("patients.json")
         for (let i = 0; i < metrics.length; i++)
             patients[i].metrics = metricsResult.insertedIds[i].toHexString()
         this.insertDocuments(patients, 'patient')
@@ -91,6 +93,7 @@ export class Feeder {
 
     }
 
+    /** insert documents to the db */
     private async insertDocuments(data: any[], collectionName: string): Promise<InsertWriteOpResult> {
         let collection = this.db.collection(collectionName)
         collection.deleteMany({})
@@ -101,12 +104,13 @@ export class Feeder {
     }
 }
 
-
+/** read JSON from data directory to object[] */
 function readJSON(filename: string): object[] {
     let json = readFileSync('data/' + filename)
     return JSON.parse(json.toString())
 }
 
+/** pad number with zeros  until it achieves given size */
 function pad(input: number, size: number) {
     var s = String(input)
     while (s.length < (size || 2)) {s = "0" + s;}

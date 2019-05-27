@@ -1,4 +1,4 @@
-import {Binary} from 'mongodb'
+import {Binary, ObjectId} from 'mongodb'
 
 export namespace JobsDb {
     export interface Job {
@@ -41,7 +41,7 @@ export namespace JobsDb {
 
 export namespace ImagesDb {
     export interface ImageFile {
-        id?: string,
+        _id?: ObjectId, // _ makes it possible to add custom id
         patient: string,
         images: string[],
         date: Date,
