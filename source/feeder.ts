@@ -52,7 +52,7 @@ export class Feeder {
                 for (let j = i*10+1; j <= i*10+10; j++) {
                 imgs.push({
                     _id: id(j),
-                    path: "/f_" + pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + pad(j, 24),
+                    path: "/f_" + pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + pad(j, 24) + '.jpg',
                     date: time,
                     notes: ""
                 })
