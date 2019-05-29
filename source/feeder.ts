@@ -45,7 +45,7 @@ export class Feeder {
     /** save images with the filesystem reference to the db */
     private async saveImages() {
         let imgs: ImagesDb.Image[] = []
-        let collection = this.db.collection('img')
+        let collection = this.db.collection('image')
         const time = new Date()
         
         for (let i = 0; i < 100; i++) {
