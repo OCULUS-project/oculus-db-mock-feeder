@@ -10,23 +10,31 @@ export class Feeder {
         private readonly db: Db
     ) {
     }
+
+    private static FIRST_IMAGE_FILE_ID = 9001
     
-    /** save image files with the filesystem reference to the db */
+    /** save images data to the db */
     async feedImgs() {
+        await this.saveImagesFiles()
+        await this.saveImages()
+    }
+
+    /** save imageFiles to the db */
+    private async saveImagesFiles() {
         let collection = this.db.collection('imageFile')
         let files: ImagesDb.ImageFile[] = []
         const time = new Date()
 
-        for (let i = 1; i <= 100; i++) {
+        for (let i = Feeder.FIRST_IMAGE_FILE_ID; i < Feeder.FIRST_IMAGE_FILE_ID + 100; i++) {
             let imgs: string[] = []
             for (let j = i*10-9; j <= i*10; j++) imgs.push(pad(j, 4))
 
             files.push({
-                _id: new ObjectId(pad(i, 24)),
+                _id: id(i),
                 patient: "kowalski",
                 images: imgs,
                 date: time,
-                notes: "txt"
+                notes: ""
             })
         }
         
@@ -34,30 +42,31 @@ export class Feeder {
         await collection.insertMany(files)
     }
 
-    /** save raw images from the filesystem to the db */
-    private async saveImgs() {
+    /** save images with the filesystem reference to the db */
+    private async saveImages() {
         let imgs: ImagesDb.Image[] = []
         let collection = this.db.collection('img')
         const time = new Date()
         
-        for (let i = 1; i <= 1000; i++) {
-            let filename = 'data/img/imgs_1k/img_' + i.toString().padStart(4, '0') + '.jpg'
-            let img = readFileSync(filename)
-            imgs.push({
-                image: new Binary(img),
-                date: time,
-                notes: ""
-            })
+        for (let i = 0; i < 100; i++) {
+                for (let j = i*10+1; j <= i*10+10; j++) {
+                imgs.push({
+                    _id: id(j),
+                    path: "/f_" + pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + pad(j, 24),
+                    date: time,
+                    notes: ""
+                })
 
-            if (imgs.length >= 25) {
-                console.log('sending imgs to db ' + i)
-                await collection.insertMany(imgs)
-                imgs = []
+                if (imgs.length >= 50) {
+                    console.log('sending imgs to the db ' + i)
+                    await collection.insertMany(imgs)
+                    imgs = []
+                }
             }
         }
         
         if (imgs.length > 0) {
-            console.log('sending imgs to db LAST')
+            console.log('sending imgs to the db LAST')
             await collection.insertMany(imgs)
         }
     }
@@ -113,6 +122,9 @@ function readJSON(filename: string): object[] {
 /** pad number with zeros  until it achieves given size */
 function pad(input: number, size: number) {
     var s = String(input)
-    while (s.length < (size || 2)) {s = "0" + s;}
+    while (s.length < size) {s = "0" + s;}
     return s;
 }
+
+/** get MongoDB id with given value */
+function id(value: number): ObjectId { return new ObjectId(pad(value, 24)) }

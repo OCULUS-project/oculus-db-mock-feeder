@@ -1,8 +1,8 @@
-import {Binary, ObjectId} from 'mongodb'
+import { ObjectId } from 'mongodb'
 
 export namespace JobsDb {
     export interface Job {
-        id?: string,
+        _id?: ObjectId,
         status: JobStatus,
         owner: string, // id of doctors user
         patient: string // id of patient
@@ -16,7 +16,7 @@ export namespace JobsDb {
     export enum JobStatus { NEW, WORKING, DONE }
 
     export interface Premise {
-        id?: string,
+        _id?: ObjectId,
         head: string,
         set: string[],
         conjuction: boolean
@@ -27,7 +27,7 @@ export namespace JobsDb {
     }
 
     export interface Rule {
-        id?: string,
+        _id?: ObjectId,
         premises: Premise[],
         conclusion: Premise,
         grfIrf: GrfIrf
@@ -41,7 +41,7 @@ export namespace JobsDb {
 
 export namespace ImagesDb {
     export interface ImageFile {
-        _id?: ObjectId, // _ makes it possible to add custom id
+        _id?: ObjectId,
         patient: string,
         images: string[],
         date: Date,
@@ -49,8 +49,8 @@ export namespace ImagesDb {
     }
     
     export interface Image {
-        id?: string,
-        image: Binary,
+        _id?: ObjectId,
+        path: string,
         date: Date,
         notes: string
     }
@@ -58,7 +58,7 @@ export namespace ImagesDb {
 
 export namespace PatientsDb {
     export interface Patient {
-        id?: string,
+        _id?: ObjectId,
         firstName: string,
         lastName: string,
         pesel: number,
@@ -69,7 +69,7 @@ export namespace PatientsDb {
     }
 
     export interface PatientMetrics {
-        id?: string,
+        _id?: ObjectId,
         dateOfBirth: Date,
         weight: number,
         height: number,
@@ -80,7 +80,7 @@ export namespace PatientsDb {
 
 export namespace UsersDb {
     export interface User {
-        id?: string,
+        _id?: ObjectId,
         type: UserType,
         login: string,
         password: string,
