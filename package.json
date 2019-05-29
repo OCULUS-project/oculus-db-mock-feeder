@@ -5,6 +5,7 @@
   "main": "build/oculus-db-mock-feeder.js",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -r build",
     "go": "node build/oculus-db-mock-feeder.js",
     "start": "npm run build && npm run go"
   },
