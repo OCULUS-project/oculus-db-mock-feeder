@@ -32,6 +32,7 @@ export class Feeder {
             files.push({
                 _id: id(i),
                 patient: "kowalski",
+                author: "doctor",
                 images: imgs,
                 date: time,
                 notes: ""

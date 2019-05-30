@@ -39,24 +39,40 @@ export namespace JobsDb {
     }
 }
 
+/** data of eye fundus images */
 export namespace ImagesDb {
+
+    /** aggregates images from one series */
     export interface ImageFile {
         _id?: ObjectId,
+        /** patient id */
         patient: string,
+        /** doctor id [user id] */
+        author: string,
+        /** list of images ids */
         images: string[],
+        /** date of creation */
         date: Date,
+        /** notes */
         notes: string
     }
     
+    /** stores data of image location in the filesystem */
     export interface Image {
         _id?: ObjectId,
+        /** path to image in the file system */
         path: string,
+        /** date of creation */
         date: Date,
+        /** notes */
         notes: string
     }
 }
 
+/** data of patients */
 export namespace PatientsDb {
+
+    /** personal and contact data of patient */
     export interface Patient {
         _id?: ObjectId,
         firstName: string,
@@ -65,9 +81,11 @@ export namespace PatientsDb {
         email: string,
         phone?: string,
         password?: string
-        metrics: string // id of patients metric
+        /** id of patients metric */
+        metrics: string
     }
 
+    /** metrical data of patietnt */
     export interface PatientMetrics {
         _id?: ObjectId,
         dateOfBirth: Date,
