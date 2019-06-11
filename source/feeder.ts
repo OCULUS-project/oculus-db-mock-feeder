@@ -11,7 +11,7 @@ export class Feeder {
     ) {
     }
 
-    private static FIRST_IMAGE_FILE_ID = 9001
+    private static FIRST_IMAGE_FILE_ID = 9000
     
     /** save images data to the db */
     async feedImgs() {
@@ -25,12 +25,12 @@ export class Feeder {
         let files: ImagesDb.ImageFile[] = []
         const time = new Date()
 
-        for (let i = Feeder.FIRST_IMAGE_FILE_ID; i < Feeder.FIRST_IMAGE_FILE_ID + 100; i++) {
+        for (let i = 1; i < 100; i++) {
             let imgs: string[] = []
-            for (let j = i*10-9; j <= i*10; j++) imgs.push(pad(j, 4))
+            for (let j = i*10-9; j <= i*10; j++) imgs.push(pad(j, 24))
 
             files.push({
-                _id: id(i),
+                _id: id(i + Feeder.FIRST_IMAGE_FILE_ID),
                 patient: "kowalski",
                 author: "doctor",
                 images: imgs,
@@ -49,7 +49,7 @@ export class Feeder {
         let collection = this.db.collection('image')
         const time = new Date()
         
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i <= 100; i++) {
                 for (let j = i*10+1; j <= i*10+10; j++) {
                 imgs.push({
                     _id: id(j),
