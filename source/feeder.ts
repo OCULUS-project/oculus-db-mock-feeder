@@ -14,7 +14,7 @@ export class Feeder {
     private static FIRST_IMAGE_FILE_ID = 9000
     
     /** save images data to the db */
-    async feedImgs() {
+    async feedImagesDb() {
         await this.saveImagesFiles()
         await this.saveImages()
     }
@@ -73,21 +73,19 @@ export class Feeder {
     }
 
     /** save patients and patients metrics to the db */
-    async feedPatients() {
-        const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
-        for (const m of metrics) {
-            m.dateOfBirth = new Date(m.dateOfBirth)
-            m.updatedAt = this.now
-        }
-        const metricsResult = await this.insertDocuments(metrics, 'patientMetrics')
-
+    async feedPatientsDb() {
         const patients = <PatientsDb.Patient[]> readJSON("patients.json")
-        for (let i = 0; i < metrics.length; i++)
-            patients[i].metrics = metricsResult.insertedIds[i].toHexString()
-        this.insertDocuments(patients, 'patient')
+        const patientsResult = await this.insertDocuments(patients, 'patient')
+
+        const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
+        for (let i = 0; i < metrics.length; i++) {
+            metrics[i].date = new Date(metrics[i].date)
+            metrics[i].patient = patientsResult.insertedIds[i].toHexString()
+        }
+        await this.insertDocuments(metrics, 'patientMetrics')
     }
 
-    async feedJobs() {
+    async feedJobsDb() {
         const jobs: any[] = readJSON("jobs.json");
         for (const j of jobs) {
             j.created = new Date();

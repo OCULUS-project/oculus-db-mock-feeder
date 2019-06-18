@@ -5,7 +5,7 @@ Additionaly the file `scripts/models.ts` contains interfaces for all data models
 
 In `scripts` directory there are bash scripts for provisioning filesytem data.
 
-In `data` directory there are static files like images for images-db.
+In `data` directory there are static files like images for images-db or jsons for mocking mongo.
 
 ## build & run
 to install all dependencies type: `npm install`

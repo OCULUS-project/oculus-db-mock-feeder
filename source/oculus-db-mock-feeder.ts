@@ -30,10 +30,10 @@ class Connector {
         const feeder = new Feeder(db)
         switch (dbType) {
             case DbType.PATIENTS:
-                await feeder.feedPatients()
+                await feeder.feedPatientsDb()
                 break
             case DbType.IMAGES:
-                await feeder.feedImgs()
+                await feeder.feedImagesDb()
                 break
         }
     }
