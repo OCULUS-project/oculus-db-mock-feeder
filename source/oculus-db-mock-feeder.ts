@@ -7,7 +7,7 @@ enum DbType {
 }
 
 class Connector {
-    static async connect(dbType: DbType) {
+    static async connect(dbType: DbType, host: string, port: string) {
         const url = 'mongodb://' + host + ':' + port;
         const client = new MongoClient(url, {useNewUrlParser: true})
 
@@ -39,9 +39,11 @@ class Connector {
     }
 }
 
-const dbType = DbType[<keyof typeof DbType> process.argv[2].toUpperCase()]
-const host = process.argv[3] != undefined ? process.argv[3] : 'localhost'
-const port = process.argv[4] != undefined ? process.argv[4] : '27017'
-
 // start the script
-Connector.connect(dbType)
+(() => {
+    const dbType = DbType[<keyof typeof DbType> process.argv[2].toUpperCase()]
+    const host = process.argv[3] != undefined ? process.argv[3] : 'localhost'
+    const port = process.argv[4] != undefined ? process.argv[4] : '27017'
+    
+    Connector.connect(dbType, host, port)
+})()
