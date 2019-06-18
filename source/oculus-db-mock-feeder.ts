@@ -7,28 +7,38 @@ enum DbType {
 }
 
 class Connector {
-    static async connect(dbType: DbType, host: string, port: string) {
+    private readonly client: MongoClient
+
+    constructor(
+        private readonly dbType: DbType, 
+        host: string, 
+        port: string
+    ) {
         const url = 'mongodb://' + host + ':' + port;
-        const client = new MongoClient(url, {useNewUrlParser: true})
-
-        console.log('feeding ' + dbType)
-        await client.connect(async (err: Error) => {
-            if (err) {
-                console.log("connection error: " + err)
-            } else {
-                const db = client.db(dbType)
-                console.log("connected to " + dbType)
-
-                db.dropDatabase();
-                await this.feed(dbType, db)
-                client.close()
-            }
-        })
+        this.client = new MongoClient(url, {useNewUrlParser: true})
     }
 
-    private static async feed(dbType: DbType, db: Db) {
+    async connect() {
+        await this.client.connect(async (err: Error) => { await this.connectAction(err) } )
+    }
+
+    private async connectAction(err: Error, connector: Connector = this) {
+        if (err) {
+            console.log("connection error: " + err)
+        } else {
+            console.log("connected to " + connector.dbType)
+            const db = connector.client.db(connector.dbType)
+
+            console.log('feeding ' + connector.dbType)
+            db.dropDatabase();
+            await connector.feed(db)
+            connector.client.close()
+        }
+    }
+
+    private async feed(db: Db) {
         const feeder = new Feeder(db)
-        switch (dbType) {
+        switch (this.dbType) {
             case DbType.PATIENTS:
                 await feeder.feedPatientsDb()
                 break
@@ -40,10 +50,10 @@ class Connector {
 }
 
 // start the script
-(() => {
+(async () => {
     const dbType = DbType[<keyof typeof DbType> process.argv[2].toUpperCase()]
     const host = process.argv[3] != undefined ? process.argv[3] : 'localhost'
     const port = process.argv[4] != undefined ? process.argv[4] : '27017'
     
-    Connector.connect(dbType, host, port)
+    await new Connector(dbType, host, port).connect()
 })()
