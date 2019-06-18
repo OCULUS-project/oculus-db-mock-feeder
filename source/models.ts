@@ -72,7 +72,7 @@ export namespace ImagesDb {
 /** data of patients */
 export namespace PatientsDb {
 
-    /** personal and contact data of patient */
+    /** personal and contact data of the patient */
     export interface Patient {
         _id?: ObjectId,
         firstName: string,
@@ -80,23 +80,29 @@ export namespace PatientsDb {
         pesel: number,
         email: string,
         phone?: string,
+        /** password for remote access to inference results */
         password?: string
-        /** id of patients metric */
-        metrics: string
     }
 
-    /** metrical data of patietnt */
+    /** data from examination of the patietnt */
     export interface PatientMetrics {
         _id?: ObjectId,
-        dateOfBirth: Date,
+        /** patients id */
+        patient: string,
+        /** date of creation */
+        date: Date
+        /** some notes */
+        notes: string,
+
+        // other properites - to settle with doctor // TODO
         weight: number,
         height: number,
-        notes: string,
-        updatedAt: Date
     }
 }
 
+/** data of users [doctors and admins] */
 export namespace UsersDb {
+     /** personal, contact login data of the user */
     export interface User {
         _id?: ObjectId,
         type: UserType,
