@@ -12,6 +12,6 @@ to install all dependencies type: `npm install`
 
 to build and run the script type: `npm start <mongo-host> <mongo-port>`
 
-to run without new build type: `npm run go <db-to-feed> <mongo-host> <mongo-port>`
+to run without new build type: `npm run go <mongo-host> <mongo-port>`
 
 example: `npm start 192.168.1.251 2500`
