@@ -108,7 +108,7 @@ export class Feeder {
                     notes: ""
                 })
 
-                if (imgs.length >= 50) {
+                if (imgs.length >= 100) {
                     Util.log('sending imgs to the db ' + i)
                     await this.insertDocuments(imgs, db, 'image', this.images)
                     imgs = []
