@@ -1,4 +1,4 @@
-import {Db, InsertOneWriteOpResult, InsertWriteOpResult, ObjectId} from 'mongodb'
+import {Db, InsertWriteOpResult, ObjectId} from 'mongodb'
 import {readFileSync} from 'fs'
 import {ImagesDb, PatientsDb} from './models'
 import { Util } from './util';
@@ -42,6 +42,24 @@ export class Feeder {
     private async feedUsersDb() {
         this.users.admins.push("admin123")
         this.users.doctors.push("doctorDr", "doctorProf", "doctorDeath")
+    }
+
+    /** save patients and patients metrics to the db */
+    private async feedPatientsDb() {
+        await this.manageDb(
+            this.dbsNames.patients, 
+            async (db: Db) => {
+                const patients = <PatientsDb.Patient[]> readJSON("patients.json")
+                const patientsResult = await this.insertDocuments(patients, db, 'patient', this.patients)
+
+                const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
+                for (let i = 0; i < metrics.length; i++) {
+                    metrics[i].date = new Date(metrics[i].date)
+                    metrics[i].patient = patientsResult.insertedIds[i].toHexString()
+                }
+                await this.insertDocuments(metrics, db, 'patientMetrics', this.patientMetrics)
+            }
+        )
     }
 
     /** save images data to the db */
@@ -101,24 +119,6 @@ export class Feeder {
             Util.log('sending imgs to the db LAST')
             await this.insertDocuments(imgs, db, 'image', this.images)
         }
-    }
-
-    /** save patients and patients metrics to the db */
-    private async feedPatientsDb() {
-        await this.manageDb(
-            this.dbsNames.patients, 
-            async (db: Db) => {
-                const patients = <PatientsDb.Patient[]> readJSON("patients.json")
-                const patientsResult = await this.insertDocuments(patients, db, 'patient', this.patients)
-
-                const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
-                for (let i = 0; i < metrics.length; i++) {
-                    metrics[i].date = new Date(metrics[i].date)
-                    metrics[i].patient = patientsResult.insertedIds[i].toHexString()
-                }
-                await this.insertDocuments(metrics, db, 'patientMetrics', this.patientMetrics)
-            }
-        )
     }
 
     /** TODO */
