@@ -3,7 +3,6 @@ import {readFileSync} from 'fs'
 import {ImagesDb, PatientsDb} from './models'
 import { Util } from './util';
 import { Connector } from './connector';
-import { timingSafeEqual } from 'crypto';
 
 export class Feeder {
 
