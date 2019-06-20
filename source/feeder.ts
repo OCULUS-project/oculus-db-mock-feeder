@@ -54,8 +54,9 @@ export class Feeder {
 
                 const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
                 for (let i = 0; i < metrics.length; i++) {
-                    metrics[i].date = new Date(metrics[i].date)
                     metrics[i].patient = patientsResult.insertedIds[i].toHexString()
+                    metrics[i].doctor = Util.random(this.users.doctors)
+                    metrics[i].date = new Date(metrics[i].date)
                 }
                 await this.insertDocuments(metrics, db, 'patientMetrics', this.patientMetrics)
             }
@@ -83,8 +84,8 @@ export class Feeder {
 
             files.push({
                 _id: id(i + Feeder.FIRST_IMAGE_FILE_ID),
-                patient: "kowalski",
-                author: "doctor",
+                patient: Util.random(this.patients),
+                author: Util.random(this.users.doctors),
                 images: imgs,
                 date: this.now,
                 notes: ""
@@ -99,7 +100,7 @@ export class Feeder {
         let imgs: ImagesDb.Image[] = []
         
         for (let i = 0; i <= 100; i++) {
-                for (let j = i*10+1; j <= i*10+10; j++) {
+            for (let j = i*10+1; j <= i*10+10; j++) {
                 imgs.push({
                     _id: id(j),
                     path: "/f_" + Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + Util.pad(j, 24) + '.jpg',

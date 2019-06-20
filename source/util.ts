@@ -5,7 +5,7 @@ export namespace Util {
 
     function time() {
         let date = new Date()
-        let time = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds() + ':' + pad(date.getMilliseconds(), 3);
+        let time = pad(date.getHours(), 2) + ':' + pad(date.getMinutes(), 2) + ':' + pad(date.getSeconds(), 2) + ':' + pad(date.getMilliseconds(), 3);
         return time
     }
 
@@ -14,5 +14,10 @@ export namespace Util {
         var s = String(input)
         while (s.length < size) {s = "0" + s;}
         return s;
+    }
+
+    /** get random element from collection */
+    export function random<E> (collection: E[]): E {
+        return collection[Math.floor(Math.random() * collection.length)]
     }
 }
