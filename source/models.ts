@@ -89,8 +89,10 @@ export namespace PatientsDb {
         _id?: ObjectId,
         /** patients id */
         patient: string,
+        /** id of issuing doctor */
+        doctor: string,
         /** date of creation */
-        date: Date
+        date: Date,
         /** some notes */
         notes: string,
 
