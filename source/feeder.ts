@@ -1,6 +1,6 @@
 import {Db, InsertWriteOpResult, ObjectId} from 'mongodb'
 import {readFileSync} from 'fs'
-import {ImagesDb, PatientsDb} from './models'
+import {ImagesDb, PatientsDb, FactsDb} from './models'
 import { Util } from './util';
 import { Connector } from './connector';
 
@@ -9,7 +9,8 @@ export class Feeder {
     private readonly dbsNames = {
         users: 'oculus-users-db-name',
         patients: 'oculus-patients-db', 
-        images: 'oculus-images-db'
+        images: 'oculus-images-db',
+        facts: 'oculus-facts-db'
     }
 
     private readonly users: Users = {
@@ -22,6 +23,10 @@ export class Feeder {
 
     private readonly imageFiles: ImagesDb.ImageFile[] = []
     private readonly images: ImagesDb.Image[] = []
+
+    private readonly rules: FactsDb.Rule[] = []
+    private static readonly FACT_SOURCES = [FactsDb.FactSourceType.IMAGE, FactsDb.FactSourceType.METRICS]
+    private readonly sourceFacts: FactsDb.SourceFact[] = []
 
     private readonly now = new Date()
 
@@ -36,6 +41,7 @@ export class Feeder {
         await this.feedUsersDb()
         await this.feedPatientsDb()
         await this.feedImagesDb()
+        await this.feedFactsDb()
     }
 
     /** TODO */
@@ -70,6 +76,7 @@ export class Feeder {
             async (db: Db) => {
                 await this.saveImagesFiles(db)
                 await this.saveImages(db)
+                await this.saveConclusions(db)
             }
         )
     }
@@ -122,8 +129,68 @@ export class Feeder {
         }
     }
 
+    /** save rules, source facts and conlusions the db */
     private async feedFactsDb() {
+        await this.manageDb(
+            this.dbsNames.facts, 
+            async (db: Db) => {
+                await this.saveRules(db)
+                await this.saveSourceFacts(db)
+            }
+        )
+    }
 
+    /** save rules to the db */
+    private async saveRules(db: Db) {
+        const rules = readJSON("facts-db/rules.json");
+        await this.insertDocuments(rules, db, 'rule', this.rules)
+    }
+
+    /** save source facts to the db */
+    private async saveSourceFacts(db: Db) {
+        const rawFacts = <FactsDb.SourceFact[]> readJSON("facts-db/source-facts.json")
+        let current: FactsDb.SourceFact[] = []
+        let jobId = 1;
+        while (1) {
+            current = Feeder.factsByJobId(jobId, rawFacts)
+            if (current.length == 0) return
+
+            const sourceType = Util.random(Feeder.FACT_SOURCES)
+            const source: FactsDb.FactSource = {
+                type: sourceType,
+                id: (() => {
+                    if (sourceType == FactsDb.FactSourceType.IMAGE)
+                        return Util.random(this.images)._id!
+                    else /* METRICS */
+                        return Util.random(this.patientMetrics)._id!
+                })().toHexString()
+            }
+            
+            const facts: FactsDb.SourceFact[] = []
+            for (let f of rawFacts) facts.push({
+                job: jobId.toString(),
+                source: source,
+                head: f.head,
+                set: f.set,
+                grfIrf: f.grfIrf,
+                conjunction: f.conjunction
+            })
+
+            await this.insertDocuments(facts, db, "sourceFact", this.sourceFacts)
+            jobId++
+        }
+    }
+
+    /** get facts with given jobId from all given facts */
+    private static factsByJobId(jobId: number, facts: FactsDb.SourceFact[]) {
+        const result: FactsDb.SourceFact[] = []
+        for (let f of facts) if (f.job == jobId.toString()) result.push(f)
+        return result
+    }
+
+    /** TODO save conclusions to the db */
+    private async saveConclusions(db: Db) {
+        // to implement with jobs-db
     }
 
     /** TODO */
@@ -133,14 +200,9 @@ export class Feeder {
         //     j.created = new Date();
         //     j.updated = new Date();
         // }
-        // const rules = readJSON("rules.json");
-        // const users = readJSON("users.json");
         // const patients = readJSON("patients.json");
 
         // this.insertDocuments(jobs, 'job')
-        // this.insertDocuments(rules, 'rule')
-        // this.insertDocuments(users, 'user')
-
     }
 
     /** insert documents to the db and push ids to local store */
