@@ -17,11 +17,11 @@ export class Feeder {
         doctors: [] 
     } 
 
-    private readonly patients: string[] = []
-    private readonly patientMetrics: string[] = []
+    private readonly patients: PatientsDb.Patient[] = []
+    private readonly patientMetrics: PatientsDb.PatientMetrics[] = []
 
-    private readonly imageFiles: string[] = []
-    private readonly images: string[] = []
+    private readonly imageFiles: ImagesDb.ImageFile[] = []
+    private readonly images: ImagesDb.Image[] = []
 
     private readonly now = new Date()
 
@@ -49,12 +49,12 @@ export class Feeder {
         await this.manageDb(
             this.dbsNames.patients, 
             async (db: Db) => {
-                const patients = <PatientsDb.Patient[]> readJSON("patients.json")
-                const patientsResult = await this.insertDocuments(patients, db, 'patient', this.patients)
+                const patients = <PatientsDb.Patient[]> readJSON("patients-db/patients.json")
+                await this.insertDocuments(patients, db, 'patient', this.patients)
 
-                const metrics = <PatientsDb.PatientMetrics[]> readJSON("patientMetrics.json")
+                const metrics = <PatientsDb.PatientMetrics[]> readJSON("patients-db/patientMetrics.json")
                 for (let i = 0; i < metrics.length; i++) {
-                    metrics[i].patient = patientsResult.insertedIds[i].toHexString()
+                    metrics[i].patient = Util.random(this.patients)._id!.toHexString()
                     metrics[i].doctor = Util.random(this.users.doctors)
                     metrics[i].date = new Date(metrics[i].date)
                 }
@@ -84,7 +84,7 @@ export class Feeder {
 
             files.push({
                 _id: id(i + Feeder.FIRST_IMAGE_FILE_ID),
-                patient: Util.random(this.patients),
+                patient: Util.random(this.patients)._id!.toHexString(),
                 author: Util.random(this.users.doctors),
                 images: imgs,
                 date: this.now,
@@ -122,6 +122,10 @@ export class Feeder {
         }
     }
 
+    private async feedFactsDb() {
+
+    }
+
     /** TODO */
     private async feedJobsDb() {
         // const jobs: any[] = readJSON("jobs.json");
@@ -140,14 +144,12 @@ export class Feeder {
     }
 
     /** insert documents to the db and push ids to local store */
-    private async insertDocuments(data: any[], db: Db, collectionName: string, store: string[]): Promise<InsertWriteOpResult> {
+    private async insertDocuments<T>(data: T[], db: Db, collectionName: string, store: T[]): Promise<InsertWriteOpResult> {
         Util.log("inserting " + collectionName)
         const collection = db.collection(collectionName)
         
         const inserted = await collection.insertMany(data)
-        for (let i = 0; i < inserted.insertedCount; i++) {
-            store.push(inserted.insertedIds[i].toHexString())
-        }
+        for (let i of inserted.ops) store.push(i);
 
         Util.log("inserted " + collectionName)
         return inserted
