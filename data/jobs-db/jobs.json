@@ -1,110 +1,29 @@
 [
   {
+    "_id": "1",
     "status": "NEW",
     "owner": "dev123",
     "patient": "patient123",
     "created": null,
     "updated": null,
-    "facts": [
-      {
-        "grfIrf": {
-          "grf": "0.99",
-          "irf": "0.85"
-        },
-        "head": "type",
-        "set": [
-          "BS"
-        ],
-        "conjunction": false
-      },
-      {
-        "grfIrf": {
-          "grf": "0.99",
-          "irf": "0.85"
-        },
-        "head": "major",
-        "set": [
-          "robotics"
-        ],
-        "conjunction": false
-      },
-      {
-        "grfIrf": {
-          "grf": "0.99",
-          "irf": "0.85"
-        },
-        "head": "gpa",
-        "set": [
-          "4.5"
-        ],
-        "conjunction": false
-      }
-    ],
     "conclusions": []
   },
   {
+    "_id": "2",
     "status": "NEW",
     "owner": "dev123",
     "patient": "patient123",
     "created": null,
     "updated": null,
-    "facts": [
-      {
-        "grfIrf": {
-          "grf": "0.99",
-          "irf": "0.85"
-        },
-        "head": "type",
-        "set": [
-          "MA"
-        ],
-        "conjunction": false
-      },
-      {
-        "grfIrf": {
-          "grf": "0.99",
-          "irf": "0.85"
-        },
-        "head": "major",
-        "set": [
-          "law"
-        ],
-        "conjunction": false
-      }
-    ],
     "conclusions": []
   },
   {
+    "_id": "3",
     "status": "NEW",
     "owner": "dev123",
     "patient": "student",
     "created": null,
     "updated": null,
-    "facts": [
-      {
-        "grfIrf": {
-          "grf": "0.95",
-          "irf": "0.9"
-        },
-        "head": "rok",
-        "set": [
-          "1",
-          "2"
-        ],
-        "conjunction": true
-      },
-      {
-        "head": "1. Podaj swoją płeć. Zaznacz odpowiedź. ",
-        "set": [
-          "mężczyzna"
-        ],
-        "grfIrf": {
-          "grf": 0.95,
-          "irf": 0.0
-        },
-        "conjunction": true
-      }
-    ],
     "conclusions": []
   }
 ]

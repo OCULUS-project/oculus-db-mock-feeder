@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 
+/** data of inference jobs */
 export namespace JobsDb {
     export interface Job {
         _id?: ObjectId,
@@ -15,27 +16,65 @@ export namespace JobsDb {
 
     export enum JobStatus { NEW, WORKING, DONE }
 
-    export interface Premise {
-        _id?: ObjectId,
-        head: string,
-        set: string[],
-        conjuction: boolean
-    }
+}
 
-    export interface Fact extends Premise {
-        grfIrf: GrfIrf
-    }
+/** data of rules, facts and conclusions */
+export namespace FactsDb {
 
+    /** rule on which the inference is based */
     export interface Rule {
         _id?: ObjectId,
+        /** premises of the rule */
         premises: Premise[],
+        /** conlusion of the rule */
         conclusion: Premise,
         grfIrf: GrfIrf
     }
 
+    /** premise for a rule */
+    export interface Premise {
+        _id?: ObjectId,
+        head: string,
+        set: string[],
+        conjunction: boolean
+    }
+
+    /** premise with GrfIrf */
+    export interface Fact extends Premise {
+        grfIrf: GrfIrf
+    }
+
+    export interface SourceFact extends Fact {
+        /** id of job the facts belongs to */
+        job: string,
+        /** source from which the fact was infered or generated */
+        source: FactSource
+    }
+
+    export interface Conclusion extends Fact {
+         /** id of job the conclusion belongs to */
+         job: string,
+    }
+
+    /** factor of reliability of the entity */
     export interface GrfIrf {
+        /** level of the dependence of a rule’s conclusion on rule’s premises */
         grf: number,
+        /** quality of the underlying rule */
         irf: number
+    }
+
+    /** explains the source from which the fact was infered or generated */
+    export interface FactSource {
+        type: FactSourceType,
+        /** id of source entity */
+        id: string
+    }
+
+    /** types of facts sources */
+    export enum FactSourceType { 
+        METRICS = "METRICS", 
+        IMAGE = "IMAGE"
     }
 }
 
