@@ -1,5 +1,7 @@
 import { ObjectId } from 'mongodb'
 
+export type integer = BigInt
+
 /** data of inference jobs */
 export namespace JobsDb {
     export interface Job {
@@ -116,7 +118,7 @@ export namespace PatientsDb {
         _id?: ObjectId,
         firstName: string,
         lastName: string,
-        pesel: number,
+        pesel: integer,
         email: string,
         phone?: string,
         /** password for remote access to inference results */
@@ -151,7 +153,7 @@ export namespace UsersDb {
         password: string,
         name: string,
         email: string,
-        phone: number
+        phone: integer
     }
 
     export enum UserType { DOCTOR, ADMIN }
