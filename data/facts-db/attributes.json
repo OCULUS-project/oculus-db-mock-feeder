@@ -1,0 +1,38 @@
+[
+    {
+        "name": "height",
+        "unit": "CENTIMETER",
+        "type": "UINT",
+        "description": "height of the patient"
+    },
+    {
+        "name": "weight",
+        "unit": "KILOGRAM",
+        "type": "UFLOAT",
+        "description": "weight of the patient"
+    },
+    {
+        "name": "initials",
+        "unit": "CENTIMETER",
+        "type": "UINT",
+        "regex": "[A-Z][A-Z]",
+        "description": "initial of patients name"
+    },
+    {
+        "name": "sex",
+        "unit": "NONE",
+        "type": "STRING",
+        "values": ["man", "woman"],
+        "description": "sex of the patient"
+    },
+    {
+        "name": "score",
+        "unit": "NONE",
+        "type": "UFLOAT",
+        "range": {
+            "min": 0,
+            "end": 1
+        },
+        "description": "some score"
+    }
+]

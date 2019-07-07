@@ -75,8 +75,53 @@ export namespace FactsDb {
 
     /** types of facts sources */
     export enum FactSourceType { 
-        METRICS = "METRICS", 
-        IMAGE = "IMAGE"
+        METRICS = 'METRICS', 
+        IMAGE = 'IMAGE'
+    }
+
+    /** an entity that can be converted into fact */
+    export interface Attribute {
+        name: String,
+        unit: AttributeUnit,
+        type: AttributeType,
+        regex: String,
+        /** values to choose from */
+        values: String[],
+        /** range of number values <min, max> */
+        range: {
+            min: String,
+            max: String
+        },
+        /** explanation of the attribute */
+        description: String,
+    }
+
+    /** the unit of the value of the datatype */
+    export enum AttributeUnit {
+        // lenght
+        METER = 'METER',
+        CENTIMETER = 'CENTIMETER',
+        
+        // weight
+        KILOGRAM = 'KILOGRAM',
+        GRAM = 'GRAM',
+
+        // angle
+        DEGREE = 'DEGREE',
+        
+        // other
+        UNIT = 'UNIT',
+        PERCENT = 'PERCENT',
+        NONE = 'NONE'
+    }
+
+    /** data type of the value of the attribute */
+    export enum AttributeType {
+        INT = 'INT',
+        UINT = 'UINT',
+        FLOAT = 'FLOAT',
+        UFLOAT = 'UFLOAT',
+        STRING = 'STRING'
     }
 }
 

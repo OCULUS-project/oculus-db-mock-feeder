@@ -27,6 +27,7 @@ export class Feeder {
     private readonly rules: FactsDb.Rule[] = []
     private static readonly FACT_SOURCES = [FactsDb.FactSourceType.IMAGE, FactsDb.FactSourceType.METRICS]
     private readonly sourceFacts: FactsDb.SourceFact[] = []
+    private readonly attributes: FactsDb.Attribute[] = []
 
     private readonly now = new Date()
 
@@ -76,7 +77,6 @@ export class Feeder {
             async (db: Db) => {
                 await this.saveImagesFiles(db)
                 await this.saveImages(db)
-                await this.saveConclusions(db)
             }
         )
     }
@@ -129,13 +129,15 @@ export class Feeder {
         }
     }
 
-    /** save rules, source facts and conlusions the db */
+    /** save rules, source facts, conlusions and attributes to the db */
     private async feedFactsDb() {
         await this.manageDb(
             this.dbsNames.facts, 
             async (db: Db) => {
                 await this.saveRules(db)
                 await this.saveSourceFacts(db)
+                await this.saveAttributes(db)
+                await this.saveConclusions(db)
             }
         )
     }
@@ -186,6 +188,12 @@ export class Feeder {
         const result: FactsDb.SourceFact[] = []
         for (let f of facts) if (f.job == jobId.toString()) result.push(f)
         return result
+    }
+
+    /** save attributes to the db */
+    private async saveAttributes(db: Db) {
+        const rules = readJSON("facts-db/attributes.json");
+        await this.insertDocuments(rules, db, 'attribute', this.attributes)
     }
 
     /** TODO save conclusions to the db */
