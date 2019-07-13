@@ -13,8 +13,8 @@
     },
     {
         "name": "initials",
-        "unit": "CENTIMETER",
-        "type": "UINT",
+        "unit": "NONE",
+        "type": "STRING",
         "regex": "[A-Z][A-Z]",
         "description": "initial of patients name"
     },
