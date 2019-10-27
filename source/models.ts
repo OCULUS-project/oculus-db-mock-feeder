@@ -135,8 +135,6 @@ export namespace ImagesDb {
         patient: string,
         /** doctor id [user id] */
         author: string,
-        /** list of images ids */
-        images: string[],
         /** date of creation */
         date: Date,
         /** notes */
@@ -146,10 +144,14 @@ export namespace ImagesDb {
     /** stores data of image location in the filesystem */
     export interface Image {
         _id?: ObjectId,
+        /** id of file the image belongs to */
+        fileId: String,
         /** path to image in the file system */
         path: string,
         /** date of creation */
         date: Date,
+        /** list of scaled versions of thw image */
+        scaled: []
         /** notes */
         notes: string
     }

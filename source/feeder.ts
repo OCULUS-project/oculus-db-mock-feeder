@@ -93,7 +93,6 @@ export class Feeder {
                 _id: id(i + Feeder.FIRST_IMAGE_FILE_ID),
                 patient: Util.random(this.patients)._id!.toHexString(),
                 author: Util.random(this.users.doctors),
-                images: imgs,
                 date: this.now,
                 notes: ""
             })
@@ -110,8 +109,10 @@ export class Feeder {
             for (let j = i*10+1; j <= i*10+10; j++) {
                 imgs.push({
                     _id: id(j),
-                    path: "/f_" + Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + Util.pad(j, 24) + '.jpg',
+                    fileId: Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24),
+                    path: "/img/f_" + Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + Util.pad(j, 24) + '.jpg',
                     date: this.now,
+                    scaled: [],
                     notes: ""
                 })
 
