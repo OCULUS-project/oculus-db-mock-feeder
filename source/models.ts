@@ -7,16 +7,15 @@ export namespace JobsDb {
     export interface Job {
         _id?: ObjectId,
         status: JobStatus,
-        owner: string, // id of doctors user
+        doctor: string, // id of doctors user
         patient: string // id of patient
         imageFile: string // id of image file
-        facts: string[], // ids of facts
-        conclusions: string[] // ids of conclusions
+        patientMetrics: string, // ids of facts
         created: Date,
         updated: Date,
     }
 
-    export enum JobStatus { NEW, WORKING, DONE }
+    export enum JobStatus { NEW = "NEW", IN_PROGRESS = "IN_PROGRESS", DONE = "DONE" }
 
 }
 
@@ -53,7 +52,7 @@ export namespace FactsDb {
         source: FactSource
     }
 
-    export interface Conclusion extends Fact {
+    export interface ResultFact extends Fact {
          /** id of job the conclusion belongs to */
          job: string,
     }
@@ -80,7 +79,7 @@ export namespace FactsDb {
     }
 
     /** an entity that can be converted into fact */
-    export interface Attribute {
+    export interface AttributeTemplate {
         name: String,
         unit: AttributeUnit,
         type: AttributeType,
@@ -183,10 +182,8 @@ export namespace PatientsDb {
         date: Date,
         /** some notes */
         notes: string,
-
-        // other properites - to settle with doctor // TODO
-        weight: number,
-        height: number,
+        /** results of examination */
+        attributes: Map<string, string>
     }
 }
 

@@ -1,6 +1,6 @@
 import {Db, InsertWriteOpResult, ObjectId} from 'mongodb'
 import {readFileSync} from 'fs'
-import {ImagesDb, PatientsDb, FactsDb} from './models'
+import {ImagesDb, PatientsDb, FactsDb, JobsDb} from './models'
 import { Util } from './util';
 import { Connector } from './connector';
 
@@ -10,7 +10,8 @@ export class Feeder {
         users: 'oculus-users-db-name',
         patients: 'oculus-patients-db', 
         images: 'oculus-images-db',
-        facts: 'oculus-facts-db'
+        facts: 'oculus-facts-db',
+        jobs: 'oculus-jobs-db'
     }
 
     private readonly users: Users = {
@@ -27,7 +28,10 @@ export class Feeder {
     private readonly rules: FactsDb.Rule[] = []
     private static readonly FACT_SOURCES = [FactsDb.FactSourceType.IMAGE, FactsDb.FactSourceType.METRICS]
     private readonly sourceFacts: FactsDb.SourceFact[] = []
-    private readonly attributes: FactsDb.Attribute[] = []
+    private readonly resultFacts: FactsDb.ResultFact[] = []
+    private readonly attributes: FactsDb.AttributeTemplate[] = []
+
+    private readonly jobs: JobsDb.Job[] = []
 
     private readonly now = new Date()
 
@@ -43,6 +47,7 @@ export class Feeder {
         await this.feedPatientsDb()
         await this.feedImagesDb()
         await this.feedFactsDb()
+        await this.feedJobsDb()
     }
 
     /** TODO */
@@ -60,10 +65,18 @@ export class Feeder {
                 await this.insertDocuments(patients, db, 'patient', this.patients)
 
                 const metrics = <PatientsDb.PatientMetrics[]> readJSON("patients-db/patientMetrics.json")
+                const attributes = new Map()
+                attributes.set("height", "180")
+                attributes.set("weight", "100.5")
+                attributes.set("initials", "JR")
+                attributes.set("sex", "man")
+                attributes.set("score", "0.5")
+                
                 for (let i = 0; i < metrics.length; i++) {
                     metrics[i].patient = Util.random(this.patients)._id!.toHexString()
                     metrics[i].doctor = Util.random(this.users.doctors)
                     metrics[i].date = new Date(metrics[i].date)
+                    metrics[i].attributes = attributes
                 }
                 await this.insertDocuments(metrics, db, 'patientMetrics', this.patientMetrics)
             }
@@ -109,8 +122,8 @@ export class Feeder {
             for (let j = i*10+1; j <= i*10+10; j++) {
                 imgs.push({
                     _id: id(j),
-                    fileId: Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24),
-                    path: "/img/f_" + Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID, 24) + "/img_" + Util.pad(j, 24) + '.jpg',
+                    fileId: Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID + 1, 24),
+                    path: "/img/f_" + Util.pad(i + Feeder.FIRST_IMAGE_FILE_ID + 1, 24) + "/img_" + Util.pad(j, 24) + '.jpg',
                     date: this.now,
                     scaled: [],
                     notes: ""
@@ -136,9 +149,7 @@ export class Feeder {
             this.dbsNames.facts, 
             async (db: Db) => {
                 await this.saveRules(db)
-                await this.saveSourceFacts(db)
                 await this.saveAttributes(db)
-                await this.saveConclusions(db)
             }
         )
     }
@@ -152,12 +163,9 @@ export class Feeder {
     /** save source facts to the db */
     private async saveSourceFacts(db: Db) {
         const rawFacts = <FactsDb.SourceFact[]> readJSON("facts-db/source-facts.json")
-        let current: FactsDb.SourceFact[] = []
-        let jobId = 1;
-        while (1) {
-            current = Feeder.factsByJobId(jobId, rawFacts)
-            if (current.length == 0) return
-
+        const facts: FactsDb.SourceFact[] = []
+        for (let fact of rawFacts) {
+            const jobId = Util.random(this.jobs)._id!.toHexString()
             const sourceType = Util.random(Feeder.FACT_SOURCES)
             const source: FactsDb.FactSource = {
                 type: sourceType,
@@ -169,50 +177,82 @@ export class Feeder {
                 })().toHexString()
             }
             
-            const facts: FactsDb.SourceFact[] = []
-            for (let f of rawFacts) facts.push({
+            facts.push({
                 job: jobId.toString(),
                 source: source,
-                head: f.head,
-                set: f.set,
-                grfIrf: f.grfIrf,
-                conjunction: f.conjunction
+                head: fact.head,
+                set: fact.set,
+                grfIrf: fact.grfIrf,
+                conjunction: fact.conjunction
             })
-
-            await this.insertDocuments(facts, db, "sourceFact", this.sourceFacts)
-            jobId++
         }
-    }
-
-    /** get facts with given jobId from all given facts */
-    private static factsByJobId(jobId: number, facts: FactsDb.SourceFact[]) {
-        const result: FactsDb.SourceFact[] = []
-        for (let f of facts) if (f.job == jobId.toString()) result.push(f)
-        return result
+        await this.insertDocuments(facts, db, "sourceFact", this.sourceFacts)
     }
 
     /** save attributes to the db */
     private async saveAttributes(db: Db) {
         const rules = readJSON("facts-db/attributes.json");
-        await this.insertDocuments(rules, db, 'attribute', this.attributes)
+        await this.insertDocuments(rules, db, 'attributeTemplate', this.attributes)
     }
 
-    /** TODO save conclusions to the db */
-    private async saveConclusions(db: Db) {
-        // to implement with jobs-db
+    /** save conclusions to the db */
+    private async saveResultFacts(db: Db) {
+        const facts: FactsDb.ResultFact[] = []
+        for (let n = 0; n < 10000; n++) {
+            facts.push({
+                head: "head",
+                set: ["set",],
+                grfIrf: {
+                    grf: Math.random() * 100,
+                    irf: Math.random() * 100
+                },
+                conjunction: false,
+                job: Util.random(this.jobs)._id!.toHexString()
+            })
+        }
+        await this.insertDocuments(facts, db, 'resultFacts', this.resultFacts)
     }
 
-    /** TODO */
+    /** save jobs to db */
     private async feedJobsDb() {
-        // const jobs: any[] = readJSON("jobs.json");
-        // for (const j of jobs) {
-        //     j.created = new Date();
-        //     j.updated = new Date();
-        // }
-        // const patients = readJSON("patients.json");
+        await this.manageDb(
+            this.dbsNames.jobs, 
+            async (db: Db) => {
+                await this.saveJobs(db)
 
-        // this.insertDocuments(jobs, 'job')
+                const factsConnector = new Connector(this.dbsNames.facts, this.host, this.port)
+                await factsConnector.manageDb( async (db) => await this.saveSourceFacts(db), false)
+                await factsConnector.manageDb( async (db) => await this.saveResultFacts(db), false)
+            }
+        )
     }
+
+    private async saveJobs(db: Db) {
+        const jobs: JobsDb.Job[] = []
+                for (let i = 0; i < 100; i++) {
+                    const imageFile = Util.random(this.imageFiles)
+                    const metrics = (() => {
+                        let m: PatientsDb.PatientMetrics
+                        do {
+                            m = Util.random(this.patientMetrics)
+                        } while (m.patient != imageFile.patient)
+                        return m
+                    })()
+                    const job: JobsDb.Job = {
+                        status: JobsDb.JobStatus.DONE,
+                        doctor: "doc1",
+                        patient: metrics.patient,
+                        patientMetrics: metrics._id!.toHexString(),
+                        imageFile: imageFile._id!.toHexString(),
+                        created: this.now,
+                        updated: this.now
+                    }
+                    jobs.push(job)
+                }
+
+                await this.insertDocuments(jobs, db, 'jobs', this.jobs)
+    }
+
 
     /** insert documents to the db and push ids to local store */
     private async insertDocuments<T>(data: T[], db: Db, collectionName: string, store: T[]): Promise<InsertWriteOpResult> {
