@@ -210,7 +210,7 @@ export class Feeder {
                 job: Util.random(this.jobs)._id!.toHexString()
             })
         }
-        await this.insertDocuments(facts, db, 'resultFacts', this.resultFacts)
+        await this.insertDocuments(facts, db, 'resultFact', this.resultFacts)
     }
 
     /** save jobs to db */
@@ -250,7 +250,7 @@ export class Feeder {
                     jobs.push(job)
                 }
 
-                await this.insertDocuments(jobs, db, 'jobs', this.jobs)
+                await this.insertDocuments(jobs, db, 'job', this.jobs)
     }
 
 
